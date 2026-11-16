@@ -1,21 +1,7 @@
-$ wc -l ssh.log
-5 ssh.log
-
-$ grep -Ei "Failed password|Invalid user" ssh.log
-
-$ grep -Ei "Failed password|Invalid user" ssh.log | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}" | sort | uniq -c | sort -nr
-
-$ awk '$9 == 403 || $9 == 500' apache.log
+Nov 15 10:20:10 server sshd[108]: Failed password for root from 45.77.21.90 port 45628 ssh2
+Nov 15 10:21:15 server sshd[109]: Failed password for invalid user guest from 103.25.10.44 port 45629 ssh2
+192.168.1.105 - - [15/Nov/2026:10:15:22 +0500] "GET /index.html HTTP/1.1" 200 1200
 45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
 45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
 103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
-
-$ grep -Ei "\.\./|%2e%2e|/etc/passwd" apache.log
-45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
-103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
-
-$ awk '$9 ~ /^4[0-9][0-9]$|^5[0-9][0-9]$/' apache.log
-45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
-45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
-103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
-Investigation completed using Kali Linux command-line tools.
+192.168.1.105 - - [15/Nov/2026:10:30:10 +0500] "GET /shop.html HTTP/1.1" 200 1500
