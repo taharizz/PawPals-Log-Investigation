@@ -47,6 +47,11 @@ Finding 4: HTTP Status Code Analysis
 ```bash
 awk '$9 == 403 || $9 == 500' apache.log
 ```
+Output:
+
+45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
+45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
+103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
 
 **Analysis:**
 
@@ -55,13 +60,8 @@ awk '$9 == 403 || $9 == 500' apache.log
 - **103.25.10.44 – HTTP 500:** The request targeted `/index.php?page=../../etc/passwd`. The server returned an Internal Server Error while handling this request. This makes it important to investigate the PHP application logs to determine whether the request reached application code, caused an application failure, or resulted in any file access.
 
 **SOC Assessment:** Both requests contain path traversal indicators. The 403 response indicates denied access, while the 500 response indicates a server-side failure. Neither response alone confirms successful reading or disclosure of `/etc/passwd`.
-Output:
 
-45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
-45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
-103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
 
-Finding: 403 means Forbidden, while 500 means Internal Server Error.
 
 5. Count SSH Attempts by IP Address
 
