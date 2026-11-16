@@ -5,3 +5,4 @@ Nov 15 10:21:15 server sshd[109]: Failed password for invalid user guest from 10
 45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
 103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
 192.168.1.105 - - [15/Nov/2026:10:30:10 +0500] "GET /shop.html HTTP/1.1" 200 1500
+103.25.10.44 ... "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
