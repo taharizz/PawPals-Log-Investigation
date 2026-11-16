@@ -1,0 +1,102 @@
+PawPals Pet Clinic – Log Investigation
+
+Commands and Outputs
+
+1. Find SSH Failed Login Attempts
+
+Command:
+
+grep -Ei "Failed password|Invalid user" ssh.log
+
+Output:
+
+Nov 15 10:15:10 server sshd[101]: Failed password for root from 45.77.21.90 port 45621 ssh2
+Nov 15 10:15:15 server sshd[102]: Failed password for invalid user admin from 45.77.21.90 port 45622 ssh2
+Nov 15 10:15:20 server sshd[103]: Failed password for root from 45.77.21.90 port 45623 ssh2
+Nov 15 10:16:10 server sshd[104]: Failed password for user from 103.25.10.44 port 45624 ssh2
+Nov 15 10:16:15 server sshd[105]: Failed password for root from 103.25.10.44 port 45625 ssh2
+Nov 15 10:17:10 server sshd[106]: Failed password for invalid user test from 103.25.10.44 port 45626 ssh2
+
+Finding: Two IP addresses generated repeated failed SSH login attempts.
+
+2. Extract Requests from 45.77.21.90
+
+Command:
+
+grep "^45\.77\.21\.90 " apache.log
+
+Output:
+
+45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
+45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
+
+Finding: This IP requested a sensitive system file and the admin page.
+
+3. Detect Path Traversal Attempts
+
+Command:
+
+grep -Ei '\.\./|%2e%2e|/etc/passwd' apache.log
+
+Output:
+
+45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
+103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
+
+Finding: Both IP addresses made suspicious path traversal requests.
+
+4. Find HTTP 403 and 500 Responses
+
+Command:
+
+awk '$9 == 403 || $9 == 500' apache.log
+
+Output:
+
+45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
+45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
+103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
+
+Finding: 403 means Forbidden, while 500 means Internal Server Error.
+
+5. Count SSH Attempts by IP Address
+
+Command:
+
+grep -Ei "Failed password|Invalid user" ssh.log | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | sort | uniq -c | sort -nr
+
+Output:
+
+3 45.77.21.90
+3 103.25.10.44
+
+Finding: Each IP generated three failed SSH login attempts in this sample.
+
+6. Count Path Traversal Requests by IP
+
+Command:
+
+grep -Ei '\.\./|%2e%2e|/etc/passwd' apache.log | awk '{print $1}' | sort | uniq -c | sort -nr
+
+Output:
+
+1 45.77.21.90
+1 103.25.10.44
+
+Finding: Each IP generated one matching path traversal request in this sample.
+
+7. Find All HTTP 4xx and 5xx Errors
+
+Command:
+
+awk '$9 ~ /^[45][0-9][0-9]$/' apache.log
+
+Output:
+
+45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
+45.77.21.90 - - [15/Nov/2026:10:21:15 +0500] "GET /admin HTTP/1.1" 403 320
+103.25.10.44 - - [15/Nov/2026:10:25:33 +0500] "GET /index.php?page=../../etc/passwd HTTP/1.1" 500 600
+
+Conclusion
+
+The sample investigation identified two suspicious source IP addresses: 45.77.21.90 and 103.25.10.44. Both generated repeated SSH login failures and suspicious web activity. Path traversal patterns targeting /etc/passwd were observed. Further investigation is required to determine whether any unauthorized access was successful.
