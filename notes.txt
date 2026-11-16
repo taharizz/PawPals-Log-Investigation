@@ -41,12 +41,20 @@ Output:
 
 Finding: Both IP addresses made suspicious path traversal requests.
 
-4. Find HTTP 403 and 500 Responses
+Finding 4: HTTP Status Code Analysis
 
-Command:
-
+**Command:**
+```bash
 awk '$9 == 403 || $9 == 500' apache.log
+```
 
+**Analysis:**
+
+- **45.77.21.90 – HTTP 403:** The request attempted to access `/../../etc/passwd`. Apache returned Forbidden, indicating that access was denied. This suggests the request was blocked, although the access log alone cannot prove whether any file access occurred internally.
+
+- **103.25.10.44 – HTTP 500:** The request targeted `/index.php?page=../../etc/passwd`. The server returned an Internal Server Error while handling this request. This makes it important to investigate the PHP application logs to determine whether the request reached application code, caused an application failure, or resulted in any file access.
+
+**SOC Assessment:** Both requests contain path traversal indicators. The 403 response indicates denied access, while the 500 response indicates a server-side failure. Neither response alone confirms successful reading or disclosure of `/etc/passwd`.
 Output:
 
 45.77.21.90 - - [15/Nov/2026:10:20:11 +0500] "GET /../../etc/passwd HTTP/1.1" 403 450
