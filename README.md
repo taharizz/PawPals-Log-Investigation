@@ -5,8 +5,8 @@ This project investigates sample SSH and Apache logs
 to identify suspicious login attempts and web requests.
 
 ## SSH Findings
-- 45.77.21.90: 3 failed login attempts
-- 103.25.10.44: 3 failed login attempts
+Nov 15 10:20:10 server sshd[108]: Failed password for root from 45.77.21.90 port 45628 ssh2
+Nov 15 10:21:15 server sshd[109]: Failed password for invalid user guest from 103.25.10.44 port 45629 ssh2
 - 192.168.1.105: Successful login for taha
 
 ## Apache Findings
